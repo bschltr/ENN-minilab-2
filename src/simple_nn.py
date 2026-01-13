@@ -20,26 +20,35 @@ class SimpleNeuralNetwork:
     # Forward pass components
     # -------------------------------------------------
     def sigmoid(self, a):
-        # TODO Implement sigmoid activation
-        return np.zeros_like(a)
+        """
+        :param self: object of SimpleNeuralNetwork
+        :param a: pre-activation matrix 
+        :return y_hat: sigmoid output matrix
+        """
+        y_hat = 1/(1+np.exp(-a))
+        return y_hat
 
     def forward(self, X):
-        # TODO Realize the forward pass
-        # Currently: Returns arrays with correct shapes, but no real computation.
-        N = X.shape[0]
-        output_dim = 3
-        # Return both: Activation values and after application of activation function (output)
-        a = np.zeros((N, output_dim))
-        y_hat = np.zeros((N, output_dim))
+        """
+        :param X: Input matrix (N,D)    (N=samples, D=input features)
+        :return a: pre-activation matrix  (N,K) (K=outputs/classes)
+        :return y_hat: sigmoid output matrix (N,K)
+        """
+        a = X @ self.W + self.b
+        y_hat = self.sigmoid(a)
         return a, y_hat
 
     # -------------------------------------------------
     # Loss
     # -------------------------------------------------
     def compute_loss(self, y_hat, y):
-        # TODO Compute the loss (MSE)
-        # Currently simply returning a value.
-        return float(np.mean(y_hat))
+        """
+        :param y_hat: sigmoid output matrix (N,K)
+        :param y: ground truth (N,K)
+        :return loss: MSE (float)
+        """
+        loss = np.mean(np.square(y_hat-y))
+        return loss
 
     # -------------------------------------------------
     # Backward pass (gradient computation)
@@ -57,25 +66,19 @@ class SimpleNeuralNetwork:
           dW: (D, K)
           db: (K,)
         """
-        # TODO: Realize the backward pass - given in steps.
-        # TODO 1:
+   
         # Compute the error term delta = ∂E / ∂a
-        # Hint:
-        #   - start from (y_hat - y)
-        #   - multiply with the derivative of the sigmoid
-        #   - sigmoid'(a) can be expressed using y_hat
-        delta = np.zeros_like(y_hat)
+        # ∂E / ∂y_hat = (y_hat-y)
+        # ∂y_hat / ∂a = σ(a)(1-σ(a))
+        loss_error = (y_hat-y)
+        sigmoid_slope = y_hat * (1-y_hat)
+        delta = loss_error * sigmoid_slope
 
-        # TODO 2:
         # Compute the gradient w.r.t. the weights
-        # Hint:
-        #   - you will have to use the Input values and delta
-        #   - if you want to deal with batches: average over the batch size
-        dW = np.zeros_like(self.W)
+        dW = np.transpose(X) @ delta / X.shape[0]
 
-        # TODO 3:
         # Compute the gradient w.r.t. the bias
-        db = np.zeros_like(self.b)
+        db = np.sum(delta,axis=0) / delta.shape[0]
 
         return dW, db
 
@@ -109,11 +112,15 @@ class SimpleNeuralNetwork:
         for _ in range(self.epochs):
             # TODOs: 
             #   Forward pass
+            a,y_hat = self.forward(X)
             #   Compute loss
-            #     and self.loss_history.append(loss)
+            loss = self.compute_loss(y_hat,y)
+            self.loss_history.append(loss)
             #   Backward pass
+            dW,db = self.backward(X,y,a,y_hat)
             #   Gradient step
-            pass
+            self.gradient_step(dW,db)
+            
 
     # -------------------------------------------------
     # Prediction
