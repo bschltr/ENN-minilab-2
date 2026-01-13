@@ -1,8 +1,6 @@
 # Last git pull
 10.01. 16:00
 
-
-
 # Introduction to Neural Networks, Mini-Lab 2 – Classification, Backpropagation, and MLPs
 
 This repository contains the materials for the second minilab of the course  
