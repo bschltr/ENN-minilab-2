@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 # Exercise 1 - plotting the training curve
 def plot_training_curve(loss_history, path):
     """
@@ -18,8 +19,20 @@ def plot_training_curve(loss_history, path):
     str
         Path to the saved figure.
     """
+
+    loss_history = np.array(loss_history)
+    epochs = np.arange(len(loss_history))
+
     plt.figure(figsize=(6, 4))
-    # TODO: Implement a plot function that visualizes the Learning over time (as given in the loss_history)
+    plt.plot(epochs,loss_history)
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("Training Loss over epochs")
+    plt.grid(True)
+
+    plt.savefig(path)
+    plt.close()
+
 
     return path
 
@@ -44,16 +57,27 @@ def plot_decision_regions(model, X, y, path):
     str
         Path to the saved figure.
     """
-    plt.figure(figsize=(6, 6))
-    # TODO: You have to visualize the decision regions of the given model.
-    # Approach: 
-    # - Create a lot of points in an area
-    #   (in a single dimension using for example np.linspace,
-    #    and for the 2D putting this in a np.meshgrid).
-    # - predict the class for all of these using model.predict
-    # - visualize this, e.g. using contourf plots 
+    x_min = np.min(X[:,0]) - 0.5
+    x_max = np.max(X[:,0]) + 0.5
+    y_min = np.min(X[:,1]) - 0.5
+    y_max = np.max(X[:,1]) + 0.5
 
-    # The data points could - for example - be shown in a scatter plot:
+    x_grid = np.linspace(x_min,x_max,400)
+    y_grid = np.linspace(y_min,y_max,400)
+    xx,yy = np.meshgrid(x_grid,y_grid)
+
+    gridpoints = np.c_[xx.ravel(), yy.ravel()]
+    predictions = model.predict(gridpoints)
+    plot_input = np.reshape(predictions, xx.shape)
+
+    # If y is one-hot encoded, convert to class labels
+    if y.ndim == 2:
+        y = np.argmax(y, axis=1)
+
+
+
+    plt.figure(figsize=(6, 6))
+    plt.contourf(xx,yy,plot_input)
     plt.scatter(X[:, 0], X[:, 1], c=y, edgecolor="k", s=20)
     plt.xlabel("x_1")
     plt.ylabel("x_2")
